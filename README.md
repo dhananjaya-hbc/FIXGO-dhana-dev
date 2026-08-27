@@ -61,6 +61,12 @@ Two modules deliberately have no `entity` or `repository` package:
 - **`auth`** handles registration, login and JWT issuing. It injects `UserRepository` from the `user` module. The `User` entity has exactly one owner — `user` — so that two modules cannot map the same table and fail startup with `DuplicateMappingException`.
 - **`admin`** (FR-18) is a view over other domains rather than a domain of its own. `AdminService` composes `UserService`, `JobService` and `ReportService`; suspension state is a column on `users`, not an admin table.
 
+Cross-module design decisions are recorded as ADRs in [backend/docs/](backend/docs/):
+
+| ADR | Decision | Status |
+|---|---|---|
+| [ADR-001](backend/docs/adr-001-user-and-provider-data-model.md) | User and provider data model — one `users` table plus a 1:1 `provider_profiles` table | Proposed |
+
 ## 4. Frontend Structure (`frontend/`)
 
 Feature-first layout so customer, provider and admin flows stay isolated; shared shadcn-style primitives live in `components/ui`.
