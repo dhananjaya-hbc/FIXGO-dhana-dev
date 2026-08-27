@@ -34,17 +34,34 @@ Credentials are read from the environment and must never be committed (NFR-01). 
 postgresql://USER:PASSWORD@HOST/neondb?sslmode=require
 ```
 
-JDBC will not accept that string. Convert it — prefix `jdbc:`, and split the credentials out:
+JDBC will not accept that string. Convert it — prefix `jdbc:`, and split the credentials out. Use the **direct** endpoint host, not the `-pooler` one, so Flyway's locking works correctly.
+
+Copy the template and fill in your values:
+
+```bash
+cd backend
+cp .env.example .env
+chmod 600 .env
+$EDITOR .env
+```
+
+`.env` is gitignored and must never be committed. `.env.example` is committed as documentation and holds no real credentials.
+
+You do **not** need to export or source anything. `application.properties` contains:
+
+```properties
+spring.config.import=optional:file:./.env[.properties]
+```
+
+so Boot loads `backend/.env` at startup, and `./mvnw spring-boot:run` and your IDE both work with no extra setup. `optional:` means startup still succeeds when the file is absent — which is what deployed environments do, supplying real environment variables instead. **Real environment variables take precedence over the file**, so a hosting platform's config always wins over a stray local `.env`.
+
+If you would rather not keep a file at all, exporting the three variables works exactly as well:
 
 ```bash
 export DB_URL='jdbc:postgresql://HOST/neondb?sslmode=require'
 export DB_USER='your_user'
 export DB_PASSWORD='your_password'
 ```
-
-Use the **direct** endpoint host, not the `-pooler` one, so Flyway's locking works correctly.
-
-Put these in a local `.env` (already gitignored) and source it, or export them in your shell profile.
 
 ### Run
 
